@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="robots" content="noindex">
+<title>غير موجود</title>
+<script>
+  // إعادة التوجيه للمسار الصحيح إن أُضيف شيء بعد /display أو /admin
+  (function () {
+    var p = location.pathname;
+    var m = p.match(/^(.*?\/)(display|admin)(\/.*)?$/);
+    if (m) { location.replace(m[1] + m[2] + '/' + location.search + location.hash); }
+  })();
+</script></head>
+<body style="font-family:Tahoma,sans-serif;text-align:center;padding:60px;color:#1b2a4a">
+<h1>الصفحة غير موجودة</h1><p><a href="/">العودة</a></p></body></html>
