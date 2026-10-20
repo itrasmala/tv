@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#1B2A4A" />
+    <title>شاشة العرض — Rasmala Smart Display</title>
+  </head>
+  <body>
+    <div id="screen" class="screen">
+      <section id="pane-right" class="pane pane-video" aria-hidden="true">
+        <video class="vid" muted playsinline loop preload="auto" disablepictureinpicture disableremoteplayback></video>
+        <div class="vid-fallback"><img class="vid-poster" alt="" /><div class="vid-brand"><span class="brand-name"></span></div></div>
+      </section>
+
+      <main id="pane-center" class="pane pane-center">
+        <header class="hdr">
+          <div class="hdr-title">
+            <img id="logo" class="logo" alt="" hidden />
+            <div>
+              <div id="org" class="org"></div>
+              <h1 id="title" class="title">جدول العمل اليومي</h1>
+            </div>
+          </div>
+          <div class="hdr-date">
+            <div id="weekday" class="weekday"></div>
+            <div id="greg" class="greg"></div>
+            <div id="hijri" class="hijri"></div>
+          </div>
+          <div class="hdr-clock" id="clock"></div>
+        </header>
+
+        <section id="prio" class="prio">
+          <h2 class="sec-title"><span class="sec-mark"></span>أهم 3 أولويات اليوم</h2>
+          <ol id="prio-list" class="prio-list"></ol>
+        </section>
+
+        <section class="sched">
+          <div class="sched-head">
+            <div>الوقت</div><div>المهمة</div><div>الحالة</div>
+          </div>
+          <div id="rows" class="rows"></div>
+          <div id="pager" class="pager" hidden></div>
+        </section>
+
+        <section id="notes" class="notes" hidden>
+          <h2 class="sec-title"><span class="sec-mark"></span>ملاحظات</h2>
+          <p id="notes-text" class="notes-text"></p>
+        </section>
+
+        <footer class="foot">
+          <span id="foot-org"></span>
+          <span id="conn" class="conn" hidden><i></i><b id="conn-text"></b></span>
+          <span id="mode-badge" class="mode-badge" hidden></span>
+        </footer>
+      </main>
+
+      <section id="pane-left" class="pane pane-video" aria-hidden="true">
+        <video class="vid" muted playsinline loop preload="auto" disablepictureinpicture disableremoteplayback></video>
+        <div class="vid-fallback"><img class="vid-poster" alt="" /><div class="vid-brand"><span class="brand-name"></span></div></div>
+      </section>
+    </div>
+    <script type="module" src="/src/display/main.ts"></script>
+  </body>
+</html>

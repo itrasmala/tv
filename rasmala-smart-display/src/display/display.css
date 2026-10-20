@@ -1,0 +1,361 @@
+/* =====================================================================
+   شاشة العرض — مصممة لتكون خفيفة على معالج التلفزيون:
+   - لا ظلال ثقيلة، لا blur، لا backdrop-filter، لا حركة مستمرة.
+   - الأحجام بوحدة rem، وحجم الخط الأساسي يُحسب من ارتفاع الشاشة وعرض القسم الأوسط.
+   ===================================================================== */
+:root {
+  --primary: #1b2a4a;
+  --accent: #b8924a;
+  --bg: #faf6ee;
+  --prayer: #e9f2ec;
+  --break: #fbf1de;
+  --ink: #1f2633;
+  --muted: #6b7280;
+  --line: #e6dfd1;
+  --surface: #ffffff;
+  --done: #2f7d4f;
+  --progress: #1f5fa8;
+  --postponed: #b26a00;
+  --video-bg: #0f1a30;
+  font-size: 20px; /* يُعاد ضبطه من JavaScript */
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Cairo Variable', 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  cursor: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+img { display: block; }
+[hidden] { display: none !important; }
+
+/* ---------- التقسيم الرئيسي ---------- */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: row; /* مع dir=rtl يظهر العنصر الأول يمينًا */
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+.pane { position: relative; height: 100%; overflow: hidden; contain: strict; flex: 0 0 auto; }
+
+/* ---------- الفيديو ---------- */
+.pane-video { background: var(--video-bg); }
+.vid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--video-bg);
+}
+.pane-video.fit-contain .vid { object-fit: contain; }
+.vid-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--video-bg);
+}
+.pane-video.show-fallback .vid-fallback { display: flex; }
+.pane-video.show-fallback .vid { visibility: hidden; }
+.vid-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.vid-poster:not([src]), .vid-poster[src=''] { display: none; }
+.vid-brand {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 1.6rem;
+  text-align: center;
+  padding: 1.2rem 1.4rem;
+  border-top: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  line-height: 1.5;
+  max-width: 80%;
+}
+.vid-poster[src]:not([src='']) + .vid-brand { display: none; }
+
+/* ---------- القسم الأوسط ---------- */
+.pane-center {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  padding: 1.1rem 1.5rem 0.5rem;
+  gap: 0.75rem;
+  border-inline: 0.2rem solid var(--accent);
+}
+.pane-center.no-left { border-inline-end: 0; }
+.pane-center.no-right { border-inline-start: 0; }
+
+/* الرأس */
+.hdr {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 0.15rem solid var(--accent);
+  flex: 0 0 auto;
+}
+.hdr-title { display: flex; align-items: center; gap: 0.9rem; flex: 1 1 auto; min-width: 0; }
+.logo { height: 3.4rem; width: auto; max-width: 9rem; object-fit: contain; }
+.org { color: var(--accent); font-weight: 700; font-size: 1rem; line-height: 1.3; }
+.title {
+  margin: 0;
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 2.15rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.hdr-date { text-align: left; flex: 0 0 auto; line-height: 1.35; }
+.weekday { color: var(--primary); font-weight: 800; font-size: 1.3rem; }
+.greg { color: var(--ink); font-weight: 600; font-size: 1rem; }
+.hijri { color: var(--muted); font-size: 0.9rem; }
+.hdr-clock {
+  flex: 0 0 auto;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.6rem;
+  min-width: 7.4rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* عناوين الأقسام */
+.sec-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.45rem;
+  color: var(--primary);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.sec-mark { width: 0.35rem; height: 1.1rem; background: var(--accent); border-radius: 0.2rem; }
+
+/* الأولويات */
+.prio { flex: 0 0 auto; }
+.prio-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+.prio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 0.2rem solid var(--primary);
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  min-height: 3.6rem;
+}
+.prio-num {
+  flex: 0 0 auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.prio-text {
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.prio-item.empty .prio-text { color: var(--muted); font-weight: 500; }
+
+/* جدول المهام */
+.sched {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+.sched-head, .row {
+  display: grid;
+  grid-template-columns: 8.6rem minmax(0, 1fr) 9.4rem;
+  align-items: center;
+}
+.sched-head {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.05rem;
+  flex: 0 0 auto;
+}
+.sched-head > div { padding: 0.55rem 0.9rem; }
+.sched-head > div:last-child, .row .c-status { text-align: center; }
+
+.rows { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.rows.page-in { animation: page-in 0.35s ease-out; }
+@keyframes page-in { from { opacity: 0; } to { opacity: 1; } }
+
+.row {
+  border-bottom: 1px solid var(--line);
+  min-height: 2.9rem;
+  position: relative;
+}
+.row:last-child { border-bottom: 0; }
+.row.off { display: none; }
+.row > div { padding: 0.32rem 0.9rem; }
+.row.k-prayer { background: var(--prayer); }
+.row.k-break { background: var(--break); }
+.row.is-now { box-shadow: inset -0.35rem 0 0 var(--accent); }
+.row.is-now .c-time { color: var(--accent); }
+
+.c-time {
+  font-weight: 800;
+  color: var(--primary);
+  font-size: 1.02rem;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.c-time small { display: block; font-weight: 600; color: var(--muted); font-size: 0.82rem; }
+.c-task { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; column-gap: 0.7rem; row-gap: 0.1rem; }
+.t-title {
+  font-weight: 700;
+  font-size: 1.12rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.t-meta { display: flex; align-items: center; gap: 0.45rem; color: var(--muted); font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+.tag {
+  display: inline-block;
+  padding: 0 0.45rem;
+  border-radius: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.5;
+  border: 1px solid currentColor;
+}
+.tag-now { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tag-meeting { color: var(--primary); }
+.tag-prayer { color: #2c6a45; }
+.tag-break { color: #9a6410; }
+.row.st-done .t-title { color: var(--muted); }
+
+.c-status { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.box {
+  flex: 0 0 auto;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 0.13rem solid var(--primary);
+  border-radius: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+.box svg { width: 1rem; height: 1rem; display: none; }
+.st-done .box { background: var(--done); border-color: var(--done); }
+.st-done .box svg { display: block; }
+.pill { font-weight: 700; font-size: 0.85rem; white-space: nowrap; min-width: 5.2rem; text-align: right; }
+.st-not_started .pill { color: var(--muted); }
+.st-in_progress .pill { color: var(--progress); }
+.st-done .pill { color: var(--done); }
+.st-postponed .pill { color: var(--postponed); }
+.st-in_progress .box { border-color: var(--progress); }
+.st-postponed .box { border-color: var(--postponed); border-style: dashed; }
+
+.empty-msg {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.pager {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--line); }
+.dot.on { background: var(--accent); }
+
+/* الملاحظات */
+.notes {
+  flex: 0 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-inline-start: 0.3rem solid var(--accent);
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.9rem;
+}
+.notes .sec-title { margin-bottom: 0.2rem; }
+.notes-text {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* التذييل */
+.foot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  min-height: 1.3rem;
+}
+.conn { display: inline-flex; align-items: center; gap: 0.35rem; color: #a33a2a; }
+.conn i { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: #c0392b; display: inline-block; }
+.mode-badge { background: var(--accent); color: #fff; padding: 0 0.6rem; border-radius: 0.3rem; font-weight: 700; }
