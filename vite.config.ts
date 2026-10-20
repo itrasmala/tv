@@ -40,6 +40,11 @@ export default defineConfig(({ mode }) => {
       cssCodeSplit: true,
       sourcemap: false,
       rollupOptions: {
+        output: {
+          // ملفات .mjs (عامل pdf.js) تُنشر بامتداد .js لضمان نوع MIME صحيح على GitHub Pages
+          assetFileNames: (info) =>
+            (info.name || '').endsWith('.mjs') ? 'assets/[name]-[hash].js' : 'assets/[name]-[hash][extname]',
+        },
         input: {
           main: resolve(process.cwd(), 'index.html'),
           display: resolve(process.cwd(), 'display/index.html'),
