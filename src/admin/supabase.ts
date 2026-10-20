@@ -28,6 +28,7 @@ export function errMsg(e: unknown): string {
   if (code === '23514' || /check constraint/i.test(msg)) return 'بعض البيانات المدخلة غير صالحة. راجع الحقول وأعد المحاولة.';
   if (/Payload too large|exceeded the maximum allowed size|too large/i.test(msg)) return 'حجم الملف أكبر من المسموح.';
   if (/mime type|invalid_mime/i.test(msg)) return 'نوع الملف غير مسموح.';
+  if (/(mode|slide_urls|slide_seconds)/.test(msg) && /column|schema cache/i.test(msg)) return 'ميزة عرض الشرائح تحتاج تشغيل الملف supabase/migrations/002_slides.sql في Supabase أولًا.';
   if (/[؀-ۿ]/.test(msg)) return msg;
   return 'حدث خطأ غير متوقع: ' + msg;
 }

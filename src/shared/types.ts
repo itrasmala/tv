@@ -58,11 +58,17 @@ export interface ScreenSettings {
   updated_at?: string;
 }
 
+export type SideMode = 'video' | 'slides';
+
 export interface VideoConfig {
   url: string | null;
   fit: VideoFit;
   poster_url: string | null;
   enabled: boolean;
+  /** فيديو أو عرض شرائح (صفحات PDF محولة لصور) — يتطلب migration 002 */
+  mode?: SideMode;
+  slide_urls?: string[];
+  slide_seconds?: number;
 }
 
 export interface ScreenVideoRow extends VideoConfig {

@@ -113,9 +113,18 @@ class VideoPane {
   private stallTicks = 0;
   private errors = 0;
   private retry: number | undefined;
+  // عرض الشرائح
+  private imgs: HTMLImageElement[];
+  private front = 0;
+  private slides: string[] = [];
+  private slideKey = '';
+  private slideIdx = 0;
+  private slideTimer: number | undefined;
+  private slideFails = 0;
 
   constructor(id: string) {
     this.root = $(id);
+    this.imgs = Array.from(this.root.querySelectorAll('.sl')) as HTMLImageElement[];
     this.video = this.root.querySelector('video')!;
     this.poster = this.root.querySelector('.vid-poster') as HTMLImageElement;
     this.brand = this.root.querySelector('.brand-name') as HTMLElement;
@@ -139,8 +148,23 @@ class VideoPane {
       if (posterUrl) this.poster.setAttribute('src', posterUrl);
       else this.poster.removeAttribute('src');
     }
-    const want = visible && !NO_VIDEO && cfg && cfg.enabled && cfg.url ? cfg.url : '';
-    if (want === this.src) return; // نفس الفيديو: لا إعادة تحميل
+    // وضع الشرائح: لا يوجد أي فك ترميز فيديو، فقط صورتان تتبادلان
+    const slides = visible && !NO_VIDEO && cfg && cfg.enabled && cfg.mode === 'slides'
+      ? (cfg.slide_urls || []).filter(Boolean) : [];
+    if (slides.length) {
+      if (this.src) { this.src = ''; clearTimeout(this.retry); this.stop(); }
+      this.root.classList.add('mode-slides');
+      this.setSlides(slides, cfg?.slide_seconds || 8);
+      return;
+    }
+    if (this.slideKey) this.stopSlides();
+    this.root.classList.remove('mode-slides');
+
+    const want = visible && !NO_VIDEO && cfg && cfg.enabled && cfg.mode !== 'slides' && cfg.url ? cfg.url : '';
+    if (want === this.src) {
+      if (!want) this.root.classList.add('show-fallback');
+      return; // نفس الفيديو: لا إعادة تحميل
+    }
     this.src = want;
     this.errors = 0;
     clearTimeout(this.retry);
@@ -181,6 +205,51 @@ class VideoPane {
     clearTimeout(this.retry);
     const wait = Math.min(30000 * this.errors, 300000);
     this.retry = window.setTimeout(() => { if (this.src) this.load(); }, wait);
+  }
+
+  private setSlides(list: string[], seconds: number) {
+    const key = JSON.stringify([list, seconds]);
+    if (key === this.slideKey) return; // نفس الشرائح: لا إعادة بدء
+    this.slideKey = key;
+    this.slides = list;
+    this.slideFails = 0;
+    clearInterval(this.slideTimer);
+    this.slideIdx = 0;
+    this.showSlide(0);
+    if (list.length > 1) {
+      this.slideTimer = window.setInterval(() => {
+        this.slideIdx = (this.slideIdx + 1) % this.slides.length;
+        this.showSlide(this.slideIdx);
+      }, Math.max(3, seconds) * 1000);
+    }
+  }
+
+  /** تحميل الصورة في العنصر الخلفي ثم إظهارها بتلاشٍ — دون وميض */
+  private showSlide(i: number) {
+    const url = this.slides[i];
+    if (!url) return;
+    const back = this.imgs[1 - this.front];
+    const front = this.imgs[this.front];
+    if (front.getAttribute('src') === url && front.classList.contains('on')) return;
+    back.onload = () => {
+      this.slideFails = 0;
+      this.root.classList.remove('show-fallback');
+      back.classList.add('on');
+      front.classList.remove('on');
+      this.front = 1 - this.front;
+    };
+    back.onerror = () => {
+      this.slideFails++;
+      if (this.slideFails >= this.slides.length) this.root.classList.add('show-fallback');
+    };
+    back.setAttribute('src', url);
+  }
+
+  private stopSlides() {
+    clearInterval(this.slideTimer);
+    this.slideKey = '';
+    this.slides = [];
+    this.imgs.forEach((im) => { im.classList.remove('on'); im.onload = im.onerror = null; im.removeAttribute('src'); });
   }
 
   /** يُستدعى كل 20 ثانية: يعيد التشغيل إذا توقف أو علِق الفيديو */

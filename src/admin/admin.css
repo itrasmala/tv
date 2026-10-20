@@ -331,3 +331,17 @@ select.st { min-height: 36px; padding: .3rem .5rem; font-weight: 700; }
   .modal { max-width: none; border-radius: 14px 14px 0 0; max-height: 92vh; }
   .toasts { left: .5rem; right: .5rem; max-width: none; }
 }
+
+/* عرض الشرائح */
+.seg { display: inline-flex; border: 1px solid #d3c9b5; border-radius: 10px; overflow: hidden; margin-bottom: .8rem; }
+.seg button { border: 0; background: #fff; padding: .5rem .9rem; font-weight: 700; cursor: pointer; color: var(--navy); }
+.seg button + button { border-inline-start: 1px solid #d3c9b5; }
+.seg button.on { background: var(--navy); color: #fff; }
+.seg button:disabled { cursor: default; }
+.slide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: .5rem; margin: .8rem 0; max-height: 330px; overflow-y: auto; }
+.slide-thumb { position: relative; border: 2px solid var(--line); border-radius: 8px; overflow: hidden; background: #0f1a30; }
+.slide-thumb.on { border-color: var(--gold); }
+.slide-thumb img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: contain; cursor: pointer; }
+.slide-n { position: absolute; top: 4px; right: 4px; background: var(--navy); color: #fff; font-size: .72rem; font-weight: 800; border-radius: 5px; padding: 0 .35rem; }
+.slide-act { display: flex; justify-content: space-between; background: #fff; }
+.slide-act .icon-btn { width: 26px; height: 24px; font-size: .75rem; }
